@@ -35,6 +35,20 @@ module.exports = {
             res.end();
         });
     },
+    page(req, res) {
+        let path = "views" + req.url + ".php";
+        fs.readFile(path, function(err, data) {
+            if (err) {
+                console.log(`Not found file: ${path}.`);
+            }
+            res.writeHead(httpStatus.OK, {      // yes, write header
+                "Content-Type": "php; charset=utf-8"
+            });
+            console.log(`served routed file: ${path}.`);
+            res.write(data);
+            res.end();
+        });
+    },
     js(req, res) {
         let path = "public/js" + req.url;
         fs.readFile(path, function(err, data) {
