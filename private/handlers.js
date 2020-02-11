@@ -3,48 +3,25 @@
  * handlers.js
  * Requesthandlers to be called by the router mechanism
  */
-const fs = require("fs");                           // file system access
-const httpStatus = require("http-status-codes");    // http sc
+const fs = require("fs");                               // file system access
+const httpStatus = require("http-status-codes");        // http sc
+const lib = require("../private/libWebUtil");           // home grown utilities
+const experimental = require("../private/myTemplater"); // highly experimental template
 
 module.exports = {
     home(req, res) {
-        let path = "views/index.html";
+        let path = req.url;
+        if (path === "/" || path === "/start") {
+            path = "/index";
+        }
+        path = "views" + path + ".html";
         fs.readFile(path, function(err, data) {
             if (err) {
                 console.log(`Not found file: ${path}.`);
             }
-            res.writeHead(httpStatus.OK, {      // yes, write header
+            res.writeHead(httpStatus.OK, {              // yes, write relevant header
                 "Content-Type": "text/html; charset=utf-8"
             });
-            console.log(`served routed file: ${path}.`);
-            res.write(data);
-            res.end();
-        });
-    },
-    side(req, res) {
-        let path = "views" + req.url + ".html";
-        fs.readFile(path, function(err, data) {
-            if (err) {
-                console.log(`Not found file: ${path}.`);
-            }
-            res.writeHead(httpStatus.OK, {      // yes, write header
-                "Content-Type": "text/html; charset=utf-8"
-            });
-            console.log(`served routed file: ${path}.`);
-            res.write(data);
-            res.end();
-        });
-    },
-    page(req, res) {
-        let path = "views" + req.url + ".php";
-        fs.readFile(path, function(err, data) {
-            if (err) {
-                console.log(`Not found file: ${path}.`);
-            }
-            res.writeHead(httpStatus.OK, {      // yes, write header
-                "Content-Type": "php; charset=utf-8"
-            });
-            console.log(`served routed file: ${path}.`);
             res.write(data);
             res.end();
         });
@@ -55,10 +32,9 @@ module.exports = {
             if (err) {
                 console.log(`Not found file: ${path}.`);
             }
-            res.writeHead(httpStatus.OK, {      // yes, write header
+            res.writeHead(httpStatus.OK, {              // yes, write relevant header
                 "Content-Type": "application/javascript; charset=utf-8"
             });
-            console.log(`served routed file: ${path}.`);
             res.write(data);
             res.end();
         });
@@ -69,10 +45,9 @@ module.exports = {
             if (err) {
                 console.log(`Not found file: ${path}`);
             }
-            res.writeHead(httpStatus.OK, {      // yes, write header
+            res.writeHead(httpStatus.OK, {              // yes, write relevant header
                 "Content-Type": "text/css; charset=utf-8"
             });
-            console.log(`served routed file: ${path}.`);
             res.write(data);
             res.end();
         });
@@ -83,10 +58,9 @@ module.exports = {
             if (err) {
                 console.log(`Not found file: ${path}`);
             }
-            res.writeHead(httpStatus.OK, {      // yes, write header
+            res.writeHead(httpStatus.OK, {              // yes, write relevant header
                 "Content-Type": "image/png"
             });
-            console.log(`served routed file: ${path}.`);
             res.write(data);
             res.end();
         });
@@ -97,10 +71,9 @@ module.exports = {
             if (err) {
                 console.log(`Not found file: ${path}`);
             }
-            res.writeHead(httpStatus.OK, {      // yes, write header
+            res.writeHead(httpStatus.OK, {              // yes, write relevant header
                 "Content-Type": "image/jpg"
             });
-            console.log(`served routed file: ${path}.`);
             res.write(data);
             res.end();
         });
@@ -111,12 +84,18 @@ module.exports = {
             if (err) {
                 console.log(`Not found file: ${path}.`);
             }
-            res.writeHead(httpStatus.OK, {      // yes, write header
+            res.writeHead(httpStatus.OK, {              // yes, write relevant header
                 "Content-Type": "text/html; charset=utf-8"
             });
-            console.log(`served routed file: ${path}.`);
             res.write(data);
             res.end();
         });
+    },
+    receiveData(req, res, data) {
+        let obj = lib.makeWebArrays(req, data);         // home made GET and POST objects
+        res.writeHead(httpStatus.OK, {                  // yes, write relevant header
+            "Content-Type": "text/html; charset=utf-8"
+        });
+        res.write(experimental.receipt(obj));           // home made templating for native node
     }
 }
